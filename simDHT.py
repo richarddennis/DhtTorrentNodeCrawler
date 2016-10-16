@@ -41,6 +41,7 @@ def decode_nodes(nodes):
         ip = inet_ntoa(nodes[i+20:i+24])
         port = unpack("!H", nodes[i+24:i+26])[0]
         n.append((nid, ip, port))
+        print ip
 
     return n
 
@@ -93,6 +94,7 @@ class DHTClient(Thread):
     def join_DHT(self):
         for address in BOOTSTRAP_NODES:
             self.send_find_node(address)
+            print address
 
     def re_join_DHT(self):
         if len(self.nodes) == 0:
@@ -117,6 +119,13 @@ class DHTClient(Thread):
             if ip == self.bind_ip: continue
             if port < 1 or port > 65535: continue
             n = KNode(nid, ip, port)
+            print ip
+            with open("ip_addresses.txt", "a") as myfile:
+                myfile.write(str(ip))
+                myfile.write("\n")
+            with open("ports.txt", "a") as myfile:
+                myfile.write(str(port))
+                myfile.write("\n")
             self.nodes.append(n)
 
 
@@ -240,6 +249,6 @@ class Master(object):
 # using example
 if __name__ == "__main__":
     # max_node_qsize bigger, bandwith bigger, speed higher
-    dht = DHTServer(Master(), "0.0.0.0", 6882, max_node_qsize=200)
+    dht = DHTServer(Master(), "0.0.0.0", 6882, max_node_qsize=2000)
     dht.start()
     dht.auto_send_find_node()
